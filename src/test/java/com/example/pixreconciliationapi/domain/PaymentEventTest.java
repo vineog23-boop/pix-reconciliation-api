@@ -18,70 +18,98 @@ class PaymentEventTest {
         // Arrange
         UUID paymentEventId = UUID.randomUUID();
         UUID merchantId = UUID.randomUUID();
+        String providerEventId = "evt-demo-0001";
+        String txid = "DEMO20260713000000000000000001";
+        String endToEndId = "E00000000202607131730DEMO0001";
+        BigDecimal amountReceived = new BigDecimal("42.00");
         OffsetDateTime receivedAt = OffsetDateTime.parse("2026-07-13T14:30:00-03:00");
+        String payerReference = "cliente-demo-12";
+        PaymentProvider provider = PaymentProvider.SIMULATED_PIX;
 
         // Act
         PaymentEvent paymentEvent = new PaymentEvent(
                 paymentEventId,
                 merchantId,
-                "evt-demo-0001",
-                "DEMO20260713000000000000000001",
-                "E00000000202607131730DEMO0001",
-                new BigDecimal("42.00"),
+                providerEventId,
+                txid,
+                endToEndId,
+                amountReceived,
                 receivedAt,
-                "cliente-demo-12",
-                PaymentProvider.SIMULATED_PIX
+                payerReference,
+                provider
         );
 
         // Assert
         assertEquals(paymentEventId, paymentEvent.getPaymentEventId());
         assertEquals(merchantId, paymentEvent.getMerchantId());
-        assertEquals("evt-demo-0001", paymentEvent.getProviderEventId());
-        assertEquals("DEMO20260713000000000000000001", paymentEvent.getTxid());
-        assertEquals("E00000000202607131730DEMO0001", paymentEvent.getEndToEndId());
-        assertEquals(new BigDecimal("42.00"), paymentEvent.getAmountReceived());
+        assertEquals(providerEventId, paymentEvent.getProviderEventId());
+        assertEquals(txid, paymentEvent.getTxid());
+        assertEquals(endToEndId, paymentEvent.getEndToEndId());
+        assertEquals(amountReceived, paymentEvent.getAmountReceived());
         assertEquals(receivedAt, paymentEvent.getReceivedAt());
-        assertEquals("cliente-demo-12", paymentEvent.getPayerReference());
-        assertEquals(PaymentProvider.SIMULATED_PIX, paymentEvent.getProvider());
+        assertEquals(payerReference, paymentEvent.getPayerReference());
+        assertEquals(provider, paymentEvent.getProvider());
     }
 
     @Test
     void shouldRejectMissingIds() {
+        // Arrange
+        UUID paymentEventId = UUID.randomUUID();
+        UUID merchantId = UUID.randomUUID();
+        BigDecimal amountReceived = new BigDecimal("42.00");
+
+        // Act + Assert
         assertThrows(IllegalArgumentException.class,
-                () -> createValidEvent(null, UUID.randomUUID(), new BigDecimal("42.00")));
+                () -> createValidEvent(null, merchantId, amountReceived));
 
         assertThrows(IllegalArgumentException.class,
-                () -> createValidEvent(UUID.randomUUID(), null, new BigDecimal("42.00")));
+                () -> createValidEvent(paymentEventId, null, amountReceived));
     }
 
     @Test
     void shouldRejectInvalidAmount() {
+        // Arrange
+        UUID paymentEventId = UUID.randomUUID();
+        UUID merchantId = UUID.randomUUID();
+        BigDecimal zeroAmount = BigDecimal.ZERO;
+        BigDecimal negativeAmount = new BigDecimal("-0.01");
+
+        // Act + Assert
         assertThrows(IllegalArgumentException.class,
-                () -> createValidEvent(UUID.randomUUID(), UUID.randomUUID(), null));
+                () -> createValidEvent(paymentEventId, merchantId, null));
 
         assertThrows(IllegalArgumentException.class,
-                () -> createValidEvent(UUID.randomUUID(), UUID.randomUUID(), BigDecimal.ZERO));
+                () -> createValidEvent(paymentEventId, merchantId, zeroAmount));
 
         assertThrows(IllegalArgumentException.class,
-                () -> createValidEvent(UUID.randomUUID(), UUID.randomUUID(), new BigDecimal("-0.01")));
+                () -> createValidEvent(paymentEventId, merchantId, negativeAmount));
     }
 
     @Test
     void shouldRejectMissingProviderData() {
+        // Arrange
+        String providerEventId = "event";
+        String txid = "txid";
+        String endToEndId = "endToEndId";
+        String payerReference = "payer";
+        OffsetDateTime receivedAt = OffsetDateTime.now();
+        PaymentProvider provider = PaymentProvider.SIMULATED_PIX;
+
+        // Act + Assert
         assertThrows(IllegalArgumentException.class,
-                () -> createEvent(null, "txid", "endToEndId", "payer", OffsetDateTime.now(), PaymentProvider.SIMULATED_PIX));
+                () -> createEvent(null, txid, endToEndId, payerReference, receivedAt, provider));
         assertThrows(IllegalArgumentException.class,
-                () -> createEvent(" ", "txid", "endToEndId", "payer", OffsetDateTime.now(), PaymentProvider.SIMULATED_PIX));
+                () -> createEvent(" ", txid, endToEndId, payerReference, receivedAt, provider));
         assertThrows(IllegalArgumentException.class,
-                () -> createEvent("event", null, "endToEndId", "payer", OffsetDateTime.now(), PaymentProvider.SIMULATED_PIX));
+                () -> createEvent(providerEventId, null, endToEndId, payerReference, receivedAt, provider));
         assertThrows(IllegalArgumentException.class,
-                () -> createEvent("event", "txid", " ", "payer", OffsetDateTime.now(), PaymentProvider.SIMULATED_PIX));
+                () -> createEvent(providerEventId, txid, " ", payerReference, receivedAt, provider));
         assertThrows(IllegalArgumentException.class,
-                () -> createEvent("event", "txid", "endToEndId", null, OffsetDateTime.now(), PaymentProvider.SIMULATED_PIX));
+                () -> createEvent(providerEventId, txid, endToEndId, null, receivedAt, provider));
         assertThrows(IllegalArgumentException.class,
-                () -> createEvent("event", "txid", "endToEndId", "payer", null, PaymentProvider.SIMULATED_PIX));
+                () -> createEvent(providerEventId, txid, endToEndId, payerReference, null, provider));
         assertThrows(IllegalArgumentException.class,
-                () -> createEvent("event", "txid", "endToEndId", "payer", OffsetDateTime.now(), null));
+                () -> createEvent(providerEventId, txid, endToEndId, payerReference, receivedAt, null));
     }
 
     private PaymentEvent createValidEvent(UUID id, UUID merchantId, BigDecimal amount) {

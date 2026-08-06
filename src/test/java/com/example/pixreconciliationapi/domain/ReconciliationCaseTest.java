@@ -37,51 +37,75 @@ class ReconciliationCaseTest {
 
     @Test
     void shouldRejectNullCaseId() {
+        // Arrange
+        UUID merchantId = UUID.randomUUID();
+        UUID receivableId = UUID.randomUUID();
+        UUID paymentEventId = UUID.randomUUID();
+
+        // Act + Assert
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new ReconciliationCase(
                         null,
-                        UUID.randomUUID(),
-                        UUID.randomUUID(),
-                        UUID.randomUUID()
+                        merchantId,
+                        receivableId,
+                        paymentEventId
                 )
         );
     }
 
     @Test
     void shouldRejectNullMerchantId() {
+        // Arrange
+        UUID reconciliationCaseId = UUID.randomUUID();
+        UUID receivableId = UUID.randomUUID();
+        UUID paymentEventId = UUID.randomUUID();
+
+        // Act + Assert
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new ReconciliationCase(
-                        UUID.randomUUID(),
+                        reconciliationCaseId,
                         null,
-                        UUID.randomUUID(),
-                        UUID.randomUUID()
+                        receivableId,
+                        paymentEventId
                 )
         );
     }
 
     @Test
     void shouldRejectNullReceivableId() {
+        // Arrange
+        UUID reconciliationCaseId = UUID.randomUUID();
+        UUID merchantId = UUID.randomUUID();
+        UUID paymentEventId = UUID.randomUUID();
+
+        // Act + Assert
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new ReconciliationCase(
-                        UUID.randomUUID(),
-                        UUID.randomUUID(),
+                        reconciliationCaseId,
+                        merchantId,
                         null,
-                        UUID.randomUUID()
+                        paymentEventId
                 )
         );
     }
 
     @Test
     void shouldRejectNullEventId() {
+        // Arrange
+        UUID reconciliationCaseId = UUID.randomUUID();
+        UUID merchantId = UUID.randomUUID();
+        UUID receivableId = UUID.randomUUID();
+
+        // Act + Assert
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new ReconciliationCase(
-                        UUID.randomUUID(),
-                        UUID.randomUUID(),
-                        UUID.randomUUID(),
+                        reconciliationCaseId,
+                        merchantId,
+                        receivableId,
                         null
                 )
         );

@@ -17,76 +17,95 @@ class ReceivableTest {
         // Arrange
         UUID receivableId = UUID.randomUUID();
         UUID merchantId = UUID.randomUUID();
+        String txid = "PEDIDO458";
+        BigDecimal expectedAmount = new BigDecimal("100.00");
 
         // Act
         Receivable receivable = new Receivable(
                 receivableId,
                 merchantId,
-                "PEDIDO458",
-                new BigDecimal("100.00")
+                txid,
+                expectedAmount
         );
 
         // Assert
         assertEquals(receivableId, receivable.getReceivableId());
         assertEquals(merchantId, receivable.getMerchantId());
-        assertEquals("PEDIDO458", receivable.getTxid());
-        assertEquals(new BigDecimal("100.00"), receivable.getExpectedAmount());
+        assertEquals(txid, receivable.getTxid());
+        assertEquals(expectedAmount, receivable.getExpectedAmount());
         assertEquals(BigDecimal.ZERO, receivable.getReceivedAmount());
         assertEquals(ReceivableStatus.OPEN, receivable.getStatus());
     }
 
     @Test
     void shouldRejectInvalidData() {
+        // Arrange
+        UUID receivableId = UUID.randomUUID();
+        UUID merchantId = UUID.randomUUID();
+        String txid = "PEDIDO458";
+        String blankTxid = " ";
+        BigDecimal expectedAmount = new BigDecimal("100.00");
+        BigDecimal zeroAmount = BigDecimal.ZERO;
+        BigDecimal negativeAmount = new BigDecimal("-0.01");
+
+        // Act + Assert
         assertThrows(IllegalArgumentException.class,
-                () -> new Receivable(null, UUID.randomUUID(), "PEDIDO458", new BigDecimal("100.00")));
+                () -> new Receivable(null, merchantId, txid, expectedAmount));
         assertThrows(IllegalArgumentException.class,
-                () -> new Receivable(UUID.randomUUID(), null, "PEDIDO458", new BigDecimal("100.00")));
+                () -> new Receivable(receivableId, null, txid, expectedAmount));
         assertThrows(IllegalArgumentException.class,
-                () -> new Receivable(UUID.randomUUID(), UUID.randomUUID(), " ", new BigDecimal("100.00")));
+                () -> new Receivable(receivableId, merchantId, blankTxid, expectedAmount));
         assertThrows(IllegalArgumentException.class,
-                () -> new Receivable(UUID.randomUUID(), UUID.randomUUID(), "PEDIDO458", null));
+                () -> new Receivable(receivableId, merchantId, txid, null));
         assertThrows(IllegalArgumentException.class,
-                () -> new Receivable(UUID.randomUUID(), UUID.randomUUID(), "PEDIDO458", BigDecimal.ZERO));
+                () -> new Receivable(receivableId, merchantId, txid, zeroAmount));
         assertThrows(IllegalArgumentException.class,
-                () -> new Receivable(UUID.randomUUID(), UUID.randomUUID(), "PEDIDO458", new BigDecimal("-0.01")));
+                () -> new Receivable(receivableId, merchantId, txid, negativeAmount));
     }
 
     @Test
     void shouldRegisterPartialPayment() {
         // Arrange
-        Receivable receivable = createValidReceivable("100.00");
+        BigDecimal expectedAmount = new BigDecimal("100.00");
+        BigDecimal paymentAmount = new BigDecimal("40.00");
+        Receivable receivable = createValidReceivable(expectedAmount);
 
         // Act
-        receivable.registerPayment(new BigDecimal("40.00"));
+        receivable.registerPayment(paymentAmount);
 
         // Assert
-        assertEquals(new BigDecimal("40.00"), receivable.getReceivedAmount());
+        assertEquals(paymentAmount, receivable.getReceivedAmount());
         assertEquals(ReceivableStatus.PARTIALLY_PAID, receivable.getStatus());
     }
 
     @Test
     void shouldCompletePayment() {
         // Arrange
-        Receivable receivable = createValidReceivable("100.00");
+        BigDecimal expectedAmount = new BigDecimal("100.00");
+        BigDecimal firstPayment = new BigDecimal("40.00");
+        BigDecimal secondPayment = new BigDecimal("60.00");
+        Receivable receivable = createValidReceivable(expectedAmount);
 
         // Act
-        receivable.registerPayment(new BigDecimal("40.00"));
-        receivable.registerPayment(new BigDecimal("60.00"));
+        receivable.registerPayment(firstPayment);
+        receivable.registerPayment(secondPayment);
 
         // Assert
-        assertEquals(new BigDecimal("100.00"), receivable.getReceivedAmount());
+        assertEquals(expectedAmount, receivable.getReceivedAmount());
         assertEquals(ReceivableStatus.PAID, receivable.getStatus());
     }
 
     @Test
     void shouldRejectExcessAmount() {
         // Arrange
-        Receivable receivable = createValidReceivable("100.00");
+        BigDecimal expectedAmount = new BigDecimal("100.00");
+        BigDecimal excessAmount = new BigDecimal("100.01");
+        Receivable receivable = createValidReceivable(expectedAmount);
 
         // Act + Assert
         assertThrows(
                 IllegalArgumentException.class,
-                () -> receivable.registerPayment(new BigDecimal("100.01"))
+                () -> receivable.registerPayment(excessAmount)
         );
 
         assertEquals(BigDecimal.ZERO, receivable.getReceivedAmount());
@@ -96,23 +115,26 @@ class ReceivableTest {
     @Test
     void shouldRejectInvalidPayment() {
         // Arrange
-        Receivable receivable = createValidReceivable("100.00");
+        BigDecimal expectedAmount = new BigDecimal("100.00");
+        BigDecimal zeroAmount = BigDecimal.ZERO;
+        BigDecimal negativeAmount = new BigDecimal("-0.01");
+        Receivable receivable = createValidReceivable(expectedAmount);
 
         // Act + Assert
         assertThrows(IllegalArgumentException.class,
                 () -> receivable.registerPayment(null));
         assertThrows(IllegalArgumentException.class,
-                () -> receivable.registerPayment(BigDecimal.ZERO));
+                () -> receivable.registerPayment(zeroAmount));
         assertThrows(IllegalArgumentException.class,
-                () -> receivable.registerPayment(new BigDecimal("-0.01")));
+                () -> receivable.registerPayment(negativeAmount));
     }
 
-    private Receivable createValidReceivable(String expectedAmount) {
+    private Receivable createValidReceivable(BigDecimal expectedAmount) {
         return new Receivable(
                 UUID.randomUUID(),
                 UUID.randomUUID(),
                 "PEDIDO458",
-                new BigDecimal(expectedAmount)
+                expectedAmount
         );
     }
 }
