@@ -77,12 +77,7 @@ public class ReconciliationCase {
         }
 
         if (!receivable.getTxid().equals(paymentEvent.getTxid())) {
-            status = ReconciliationStatus.DIVERGENT;
-            return;
-        }
-
-        if (receivable.getExpectedAmount().compareTo(paymentEvent.getAmountReceived()) != 0) {
-            status = ReconciliationStatus.DIVERGENT;
+            status = ReconciliationStatus.REJECTED;
             return;
         }
 

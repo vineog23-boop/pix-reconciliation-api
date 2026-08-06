@@ -158,7 +158,7 @@ class ReconciliationCaseTest {
     }
 
     @Test
-    void shouldMarkDifferentTxidAsDivergent() {
+    void shouldRejectDifferentTxid() {
         // Arrange
         UUID reconciliationCaseId = UUID.randomUUID();
         UUID merchantId = UUID.randomUUID();
@@ -193,13 +193,13 @@ class ReconciliationCaseTest {
         reconciliationCase.reconcile(receivable, paymentEvent);
 
         // Assert
-        assertEquals(ReconciliationStatus.DIVERGENT, reconciliationCase.getStatus());
+        assertEquals(ReconciliationStatus.REJECTED, reconciliationCase.getStatus());
         assertEquals(BigDecimal.ZERO, receivable.getReceivedAmount());
         assertEquals(ReceivableStatus.OPEN, receivable.getStatus());
     }
 
     @Test
-    void shouldMarkDifferentAmountAsDivergent() {
+    void shouldMatchPartialPayment() {
         // Arrange
         UUID reconciliationCaseId = UUID.randomUUID();
         UUID merchantId = UUID.randomUUID();
@@ -234,9 +234,50 @@ class ReconciliationCaseTest {
         reconciliationCase.reconcile(receivable, paymentEvent);
 
         // Assert
-        assertEquals(ReconciliationStatus.DIVERGENT, reconciliationCase.getStatus());
-        assertEquals(BigDecimal.ZERO, receivable.getReceivedAmount());
-        assertEquals(ReceivableStatus.OPEN, receivable.getStatus());
+        assertEquals(ReconciliationStatus.MATCHED, reconciliationCase.getStatus());
+        assertEquals(receivedAmount, receivable.getReceivedAmount());
+        assertEquals(ReceivableStatus.PARTIALLY_PAID, receivable.getStatus());
+    }
+
+    @Test
+    void shouldMatchExcessPayment() {
+        // Arrange
+        UUID reconciliationCaseId = UUID.randomUUID();
+        UUID merchantId = UUID.randomUUID();
+        UUID receivableId = UUID.randomUUID();
+        UUID paymentEventId = UUID.randomUUID();
+        String txid = "PEDIDO458";
+        BigDecimal expectedAmount = new BigDecimal("100.00");
+        BigDecimal receivedAmount = new BigDecimal("120.00");
+
+        Receivable receivable = new Receivable(
+                receivableId,
+                merchantId,
+                txid,
+                expectedAmount
+        );
+
+        PaymentEvent paymentEvent = createPaymentEvent(
+                paymentEventId,
+                merchantId,
+                txid,
+                receivedAmount
+        );
+
+        ReconciliationCase reconciliationCase = new ReconciliationCase(
+                reconciliationCaseId,
+                merchantId,
+                receivableId,
+                paymentEventId
+        );
+
+        // Act
+        reconciliationCase.reconcile(receivable, paymentEvent);
+
+        // Assert
+        assertEquals(ReconciliationStatus.MATCHED, reconciliationCase.getStatus());
+        assertEquals(receivedAmount, receivable.getReceivedAmount());
+        assertEquals(ReceivableStatus.OVERPAID, receivable.getStatus());
     }
 
     @Test

@@ -10,6 +10,9 @@ public enum ReceivableStatus {
     // Recebeu exatamente o valor esperado.
     PAID,
 
+    // Recebeu mais do que o valor esperado.
+    OVERPAID,
+
     // Passou do vencimento sem pagamento suficiente.
     OVERDUE,
 

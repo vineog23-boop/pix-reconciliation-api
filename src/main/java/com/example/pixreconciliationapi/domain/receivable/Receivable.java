@@ -63,16 +63,14 @@ public class Receivable {
 
         BigDecimal updatedReceivedAmount = receivedAmount.add(paymentAmount);
 
-        if (updatedReceivedAmount.compareTo(expectedAmount) > 0) {
-            throw new IllegalArgumentException("O valor recebido nao pode superar o valor esperado");
-        }
-
         receivedAmount = updatedReceivedAmount;
 
-        if (receivedAmount.compareTo(expectedAmount) == 0) {
+        if (receivedAmount.compareTo(expectedAmount) < 0) {
+            status = ReceivableStatus.PARTIALLY_PAID;
+        } else if (receivedAmount.compareTo(expectedAmount) == 0) {
             status = ReceivableStatus.PAID;
         } else {
-            status = ReceivableStatus.PARTIALLY_PAID;
+            status = ReceivableStatus.OVERPAID;
         }
     }
 

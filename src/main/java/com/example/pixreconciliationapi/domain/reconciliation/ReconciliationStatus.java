@@ -4,10 +4,10 @@ public enum ReconciliationStatus {
     // O pagamento ainda não foi analisado.
     PENDING,
 
-    // O pagamento corresponde ao recebível.
+    // O evento de pagamento foi associado ao recebível correto.
     MATCHED,
 
-    // Os dados ou valores não correspondem.
+    // Existem dados conflitantes que impedem uma associação segura.
     DIVERGENT,
 
     // O caso precisa de análise humana.
@@ -16,6 +16,6 @@ public enum ReconciliationStatus {
     // Um operador resolveu o caso manualmente.
     MANUALLY_RESOLVED,
 
-    // O pagamento foi considerado inválido para conciliação.
+    // O evento de pagamento não pertence ao recebível analisado.
     REJECTED
 }

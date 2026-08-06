@@ -96,20 +96,18 @@ class ReceivableTest {
     }
 
     @Test
-    void shouldRejectExcessAmount() {
+    void shouldRegisterExcessAmount() {
         // Arrange
         BigDecimal expectedAmount = new BigDecimal("100.00");
         BigDecimal excessAmount = new BigDecimal("100.01");
         Receivable receivable = createValidReceivable(expectedAmount);
 
-        // Act + Assert
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> receivable.registerPayment(excessAmount)
-        );
+        // Act
+        receivable.registerPayment(excessAmount);
 
-        assertEquals(BigDecimal.ZERO, receivable.getReceivedAmount());
-        assertEquals(ReceivableStatus.OPEN, receivable.getStatus());
+        // Assert
+        assertEquals(excessAmount, receivable.getReceivedAmount());
+        assertEquals(ReceivableStatus.OVERPAID, receivable.getStatus());
     }
 
     @Test
