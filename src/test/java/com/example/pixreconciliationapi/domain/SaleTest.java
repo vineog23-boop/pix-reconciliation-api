@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class SaleTest {
 
     @Test
-    void shouldCreateSaleWhenDataIsValid() {
+    void shouldCreateValidSale() {
         // Arrange
         UUID idSale = UUID.randomUUID();
         UUID idSeller = UUID.randomUUID();
@@ -28,50 +28,48 @@ class SaleTest {
     }
 
     @Test
-    void shouldNotCreatSaleWhenSaleValueIsZero(){
-
-        //arrange
+    void shouldRejectZeroValue() {
+        // Arrange
         UUID idSale = UUID.randomUUID();
         UUID idSeller = UUID.randomUUID();
         BigDecimal saleValue = BigDecimal.ZERO;
-        
 
-        //act + assert
-        assertThrows(IllegalArgumentException.class,
-        () -> new Sale(idSale,idSeller,saleValue));
-        
+        // Act + Assert
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Sale(idSale, idSeller, saleValue)
+        );
     }
 
     @Test
-    void shouldNotCreateSaleWhenSaleValueIsNegative(){
-
-        //arrange
+    void shouldRejectNegativeValue() {
+        // Arrange
         UUID idSale = UUID.randomUUID();
         UUID idSeller = UUID.randomUUID();
-        BigDecimal saleValue = new BigDecimal("-2.00") ;
+        BigDecimal saleValue = new BigDecimal("-2.00");
 
-
-        //act + assert
-        assertThrows(IllegalArgumentException.class,
-                () -> new Sale(idSale,idSeller,saleValue));
-
+        // Act + Assert
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Sale(idSale, idSeller, saleValue)
+        );
     }
 
     @Test
-    void shouldNotCreateSaleWhenIdSaleIsNull(){
-
-        //arrange
+    void shouldRejectNullSaleId() {
+        // Arrange
         UUID idSeller = UUID.randomUUID();
         BigDecimal saleValue = new BigDecimal("100.00");
 
-        //act + assert
-        assertThrows(IllegalArgumentException.class,
-                () -> new Sale(null,idSeller,saleValue));
-
+        // Act + Assert
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Sale(null, idSeller, saleValue)
+        );
     }
 
     @Test
-    void shouldNotCreateSaleWhenIdSellerIsNull() {
+    void shouldRejectNullSellerId() {
         // Arrange
         UUID idSale = UUID.randomUUID();
         BigDecimal saleValue = new BigDecimal("100.00");
@@ -84,7 +82,7 @@ class SaleTest {
     }
 
     @Test
-    void shouldNotCreateSaleWhenSaleValueIsNull() {
+    void shouldRejectNullValue() {
         // Arrange
         UUID idSale = UUID.randomUUID();
         UUID idSeller = UUID.randomUUID();
@@ -95,6 +93,4 @@ class SaleTest {
                 () -> new Sale(idSale, idSeller, null)
         );
     }
-    
-
 }

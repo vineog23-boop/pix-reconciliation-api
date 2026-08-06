@@ -5,8 +5,12 @@ import java.util.UUID;
 
 public class Sale {
 
+    // Identificador interno da venda em nossa aplicação.
     private final UUID idSale;
+
+    // Identifica quem realizou ou registrou a venda.
     private final UUID idSeller;
+
     private final BigDecimal saleValue;
 
     public Sale(UUID idSale, UUID idSeller, BigDecimal saleValue) {
