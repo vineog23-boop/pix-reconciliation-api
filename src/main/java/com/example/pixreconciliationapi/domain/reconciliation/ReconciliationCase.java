@@ -1,5 +1,8 @@
 package com.example.pixreconciliationapi.domain.reconciliation;
 
+import com.example.pixreconciliationapi.domain.payment.PaymentEvent;
+import com.example.pixreconciliationapi.domain.receivable.Receivable;
+
 import java.util.UUID;
 
 public class ReconciliationCase {
@@ -45,6 +48,46 @@ public class ReconciliationCase {
         this.receivableId = receivableId;
         this.paymentEventId = paymentEventId;
         this.status = ReconciliationStatus.PENDING;
+    }
+
+    public void reconcile(Receivable receivable, PaymentEvent paymentEvent) {
+        if (receivable == null) {
+            throw new IllegalArgumentException("O recebivel nao pode ser nulo");
+        }
+
+        if (paymentEvent == null) {
+            throw new IllegalArgumentException("O evento de pagamento nao pode ser nulo");
+        }
+
+        if (status != ReconciliationStatus.PENDING) {
+            throw new IllegalStateException("O caso de conciliacao ja foi analisado");
+        }
+
+        if (!receivableId.equals(receivable.getReceivableId())) {
+            throw new IllegalArgumentException("O recebivel nao pertence a este caso de conciliacao");
+        }
+
+        if (!paymentEventId.equals(paymentEvent.getPaymentEventId())) {
+            throw new IllegalArgumentException("O evento de pagamento nao pertence a este caso de conciliacao");
+        }
+
+        if (!merchantId.equals(receivable.getMerchantId())
+                || !merchantId.equals(paymentEvent.getMerchantId())) {
+            throw new IllegalArgumentException("Os dados nao pertencem ao mesmo estabelecimento");
+        }
+
+        if (!receivable.getTxid().equals(paymentEvent.getTxid())) {
+            status = ReconciliationStatus.DIVERGENT;
+            return;
+        }
+
+        if (receivable.getExpectedAmount().compareTo(paymentEvent.getAmountReceived()) != 0) {
+            status = ReconciliationStatus.DIVERGENT;
+            return;
+        }
+
+        receivable.registerPayment(paymentEvent.getAmountReceived());
+        status = ReconciliationStatus.MATCHED;
     }
 
     public UUID getReconciliationCaseId() {
