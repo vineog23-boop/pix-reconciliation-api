@@ -1,218 +1,80 @@
-# Pix Reconciliation API
+<h1 align="center">💸 Pix Reconciliation API</h1>
+<p align="center">Modelagem de vendas e pagamentos para uma futura conciliação Pix.</p>
+<p align="center">
+  <img src="https://img.shields.io/badge/Java-21-2563EB?style=flat-square" alt="Java: 21">
+  <img src="https://img.shields.io/badge/Spring%20Boot-4.1.0-0F766E?style=flat-square" alt="Spring Boot: 4.1.0">
+  <img src="https://img.shields.io/badge/Status-Dom%C3%ADnio%20inicial-475569?style=flat-square" alt="Status: Domínio inicial">
+</p>
 
-![Java](https://img.shields.io/badge/Java-21-orange?style=for-the-badge&logo=openjdk)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.1.0-brightgreen?style=for-the-badge&logo=springboot)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
-![Maven](https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)
-![Status](https://img.shields.io/badge/Status-Em%20desenvolvimento-yellow?style=for-the-badge)
+<p align="center"><a href="#visão-geral">Visão geral</a> · <a href="#como-executar">Execução</a> · <a href="#próximos-passos">Próximos passos</a></p>
 
-## O que o projeto faz
+---
 
-O Pix Reconciliation API é um projeto backend para conciliar recebimentos Pix de pequenos comerciantes.
+## Visão geral
 
-A aplicação tem como objetivo comparar os valores esperados com os pagamentos recebidos, identificar divergências e auxiliar no fechamento diário do caixa.
+Projeto pessoal de backend para estudar a conciliação entre vendas e pagamentos recebidos por pequenos comerciantes. O objetivo futuro é identificar valores divergentes, pagamentos parciais e eventos duplicados.
 
-O projeto utiliza Clean Architecture como referência para manter as regras de negócio independentes do Spring Boot, banco de dados e HTTP.
+O checkpoint atual concentra **classes de domínio Java**, sem uma API REST implementada ou integração com provedores Pix. Os exemplos e estudos utilizam dados sintéticos.
 
-> Este projeto utiliza dados sintéticos e não realiza movimentações financeiras reais.
+## Estado da implementação
 
-## Funcionalidades
-
-- ✅ Modelagem inicial do domínio de recebíveis
-- ✅ Validação de valores monetários com `BigDecimal`
-- ✅ Modelagem inicial de eventos de pagamento Pix
-- ✅ Validação de identificadores obrigatórios
-- ✅ Configuração inicial do PostgreSQL
-- 🚧 Conciliação automática de pagamentos
-- 🚧 Identificação de pagamentos divergentes
-- 🚧 Tratamento de pagamentos parciais
-- 🚧 Idempotência na importação de eventos Pix
-- 🚧 Revisão manual de divergências
-- 🚧 Fechamento diário do caixa
-- 🚧 API REST
-- 🚧 Testes automatizados
-- 🚧 Docker Compose
-- 🚧 Documentação com OpenAPI
+| Componente | O que existe |
+| --- | --- |
+| `Sale` | Identificadores da venda e vendedor, valor em `BigDecimal` e validações de obrigatoriedade e valor positivo. |
+| `PaymentEvent` | Identificador do pagamento, valor positivo e identificador externo não nulo/não vazio. |
+| `Receivable` | Classe inicial ainda sem campos ou comportamento. |
+| Conciliação | Casos de uso ainda não implementados. |
+| HTTP | Sem controllers ou endpoints. |
+| Persistência | Dependências MySQL/JPA/Flyway; conexão e migrations ainda pendentes. |
 
 ## Tecnologias
 
-| Tecnologia | Versão | Descrição |
-|---|---:|---|
-| Java | 21 | Linguagem principal |
-| Spring Boot | 4.1.0 | Framework da aplicação |
-| Spring MVC | 4.1.0 | Desenvolvimento da API REST |
-| Spring Data JPA | 4.1.0 | Persistência e acesso a dados |
-| PostgreSQL | 18 | Banco de dados relacional |
-| Flyway | Compatível com o projeto | Controle de migrations |
-| Maven | Wrapper | Gerenciamento do projeto e dependências |
-| Bean Validation | Spring Boot | Validação de dados |
-| Git | - | Controle de versão |
+| Tecnologia | Versão / estado |
+| --- | --- |
+| Java | 21 |
+| Spring Boot | 4.1.0 |
+| Spring Web MVC, Data JPA e Validation | Dependências preparadas |
+| MySQL Connector/J e Flyway MySQL | Presentes no `pom.xml`, sem conexão configurada |
+| Maven Wrapper | Incluído |
 
-## Como rodar
+**PostgreSQL não está configurado nesta versão.** O `application.properties` contém apenas o nome da aplicação; variáveis como `DB_URL` e `DB_PASSWORD` ainda não são consumidas por esse arquivo.
 
-### Pré-requisitos
+## Organização
 
-- Java 21
-- Maven
-- PostgreSQL
-- IntelliJ IDEA ou outra IDE compatível
+| Caminho em `domain/` | Conteúdo |
+| --- | --- |
+| `sale/Sale.java` | Modelo de venda. |
+| `payment/PaymentEvent.java` | Evento de pagamento. |
+| `receivable/Receivable.java` | Estrutura inicial de recebível. |
 
-### Configuração do banco
+As classes de venda e pagamento não dependem de Spring ou JPA. A organização usa Clean Architecture como referência para a evolução futura; os casos de uso e adaptadores ainda serão construídos. As declarações de pacote de `Sale` e `PaymentEvent` também precisam ser alinhadas aos subdiretórios.
 
-Crie um banco PostgreSQL chamado:
+## Como executar
 
-```text
-fintrack
-```
-
-Configure a variável de ambiente com a senha do banco:
-
-```text
-DB_PASSWORD=sua_senha
-```
-
-As configurações padrão utilizadas pela aplicação são:
-
-```text
-DB_URL=jdbc:postgresql://localhost:5432/fintrack
-DB_USERNAME=postgres
-DB_PASSWORD=sua_senha
-```
-
-A porta `5432` é a porta padrão utilizada pelo PostgreSQL neste ambiente. Caso o banco esteja configurado em outra porta, altere a variável `DB_URL`.
-
-### Executando pela IDE
-
-1. Abra o projeto na IntelliJ IDEA.
-2. Configure a variável `DB_PASSWORD` na configuração de execução.
-3. Verifique se o PostgreSQL está em execução.
-4. Execute a classe principal da aplicação.
-
-A aplicação será iniciada, por padrão, na porta:
-
-```text
-http://localhost:8080
-```
-
-### Executando pelo Maven
+Com **JDK 21**, clone e inspecione o projeto:
 
 ```bash
-mvn spring-boot:run
+git clone https://github.com/vineog23-boop/pix-reconciliation-api.git
+cd pix-reconciliation-api
+bash ./mvnw compile
 ```
 
-Ainda não existe Docker Compose configurado para este projeto. Essa etapa será adicionada posteriormente.
+No Windows: `.\mvnw.cmd compile`.
 
-## Endpoints
-
-A API REST ainda está em desenvolvimento.
-
-Os endpoints serão adicionados após a implementação dos casos de uso de aplicação e dos adaptadores HTTP.
-
-## Arquitetura
-
-O projeto segue uma abordagem inspirada nos princípios da Clean Architecture.
-
-A regra principal é manter o domínio independente de Spring Boot, JPA, PostgreSQL e HTTP.
-
-Estrutura atual:
-
-```text
-src/main/java/com/example/pixreconciliationapi/
-├── PixReconciliationApiApplication.java
-└── domain/
-    ├── payment/
-    │   └── PaymentEvent.java       # Evento de pagamento recebido
-    ├── receivable/
-    │   └── Receivable.java         # Valor esperado a receber
-    └── sale/
-        └── Sale.java               # Modelo inicial de venda
-```
-
-Estrutura planejada:
-
-```text
-src/main/java/com/example/pixreconciliationapi/
-├── domain/
-│   ├── receivable/                # Entidades e regras de recebíveis
-│   ├── payment/                   # Eventos de pagamento Pix
-│   ├── reconciliation/            # Regras de conciliação
-│   └── shared/                    # Tipos compartilhados do domínio
-├── application/
-│   ├── port/
-│   │   ├── in/                    # Portas de entrada dos casos de uso
-│   │   └── out/                   # Portas para persistência e integrações
-│   └── usecase/                   # Casos de uso da aplicação
-├── adapters/
-│   ├── in/
-│   │   └── web/                   # Controllers e DTOs HTTP
-│   └── out/
-│       └── persistence/            # JPA, repositories e mapeadores
-└── configuration/                 # Configuração e integração com Spring
-```
-
-Fluxo planejado:
-
-```text
-Controller
-    ↓
-Use Case
-    ↓
-Domain
-    ↑
-Persistence Adapter
-```
-
-O Controller recebe a requisição, o caso de uso coordena o fluxo e o domínio concentra as regras de negócio.
-
-## Desafios enfrentados
-
-### Modelagem do domínio
-
-Foi necessário diferenciar venda, valor esperado e evento de pagamento, pois cada conceito representa uma parte diferente do processo financeiro.
-
-### Regras no domínio
-
-As validações de valores e identificadores foram colocadas nas próprias classes de domínio, mantendo os objetos sempre em um estado válido.
-
-### Valores monetários
-
-O projeto utiliza `BigDecimal` para evitar problemas de precisão comuns em operações financeiras com `double` ou `float`.
-
-### Independência do Spring
-
-As primeiras entidades foram criadas como classes Java simples, sem anotações do Spring ou do JPA.
-
-### Conciliação de eventos
-
-O projeto deverá controlar eventos Pix duplicados, pagamentos parciais e valores divergentes sem aplicar o mesmo pagamento duas vezes.
-
-### Evolução incremental
-
-A implementação está sendo feita por etapas: domínio, casos de uso, persistência, API REST, testes e infraestrutura.
+A inicialização completa com `spring-boot:run` depende da configuração de datasource e schema. Ainda não há Docker Compose, servidor de banco preparado ou endpoint para testar com Postman.
 
 ## Testes
 
-Os testes automatizados ainda serão implementados após a conclusão da primeira versão do domínio e dos casos de uso.
+Existe o teste inicial de contexto Spring. Sem datasource configurado, ele ainda não constitui uma execução reproduzível da aplicação. Não há testes específicos de conciliação ou das classes de domínio.
 
-A estratégia planejada inclui:
+## Próximos passos
 
-- testes unitários das regras de domínio;
-- testes dos casos de uso com Mockito;
-- testes de integração com PostgreSQL;
-- testes de idempotência;
-- testes de pagamentos parciais e divergentes.
-
-## Limitações atuais
-
-- Não existe integração com bancos ou provedores Pix reais.
-- A aplicação não movimenta dinheiro.
-- Os dados utilizados serão sintéticos.
-- A API REST ainda não foi implementada.
-- A autenticação e autorização ainda não foram implementadas.
-- O Docker Compose ainda não foi configurado.
+- Completar `Receivable` e alinhar os pacotes das classes.
+- Testar valores monetários e identificadores.
+- Implementar o primeiro caso de conciliação e suas portas de persistência.
+- Configurar banco e migrations coerentes com as dependências escolhidas.
+- Adicionar idempotência, pagamentos parciais e endpoints conforme os casos de uso forem concluídos.
 
 ## Autor
 
-Vinicius Oliveira Goncalves
-
-[GitHub](https://github.com/vineog23-boop)
+**Vinícius Oliveira** · [GitHub](https://github.com/vineog23-boop) · [LinkedIn](https://www.linkedin.com/in/vinícius-oliveira-1770b7306)
